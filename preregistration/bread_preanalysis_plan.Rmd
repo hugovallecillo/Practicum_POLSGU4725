@@ -1,0 +1,120 @@
+---
+title: "Does a Glass of Water in the Microwave Reduce Moisture Loss When Defrosting Sourdough?"
+subtitle: "Pre-Analysis Plan, Practicum Experiment, [POLSGU4725](https://courseworks2.columbia.edu/courses/251300)"
+author: "Hugo Vallecillo Arenillas\\thanks{Registered on OSF: \\url{https://osf.io/rcydb/}. Additional information can be examined in that pre-registration.}"
+date: "November 16, 2026"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{fvextra}
+  - \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, eval = FALSE, message = FALSE, warning = FALSE)
+```
+
+# Written components
+
+## 1. Subjects
+
+My subjects are single frozen slices of Trader Joe's San Francisco-style sourdough from two packs that were bought and frozen together, plus a third pack for the pilot, so the unit of analysis is the slice. I will buy the bread at the supermarket the day before the experiment is run and freeze it for 24 hours. The initial heel will be removed, the slices of each pack will be numbered from left to right, and slices with the same number will be paired, giving 14 blocks (28 slices). The population of interest is frozen, pre-sliced sourdough bread defrosted in a microwave, but the slices chosen are the ones available in these packs, and not a random draw from different kinds of slices. Therefore, the estimated ATE is the average effect for these 28 slices, and its validity for other types of bread, other microwaves or other settings is limited.
+
+## 2. Treatment
+
+The treatment is a glass with 140 g of room-temperature water placed beside the slice in the microwave; the control is no glass. The slices (and the glass, when it is used) are always placed in the same position, and the water is replaced after every run with fresh water from the same container of room-temperature water. Both conditions use the default power for 35 seconds. This time was chosen in an informal pilot before registration: three mid-sized slices from the middle of the third pack were heated without a glass for 25, 30 and 35 seconds, and only the 35 second slice was properly defrosted. No slice with a glass was used in the pilot, so the choice of time did not depend on the treatment, and the pilot slices are excluded from the analysis.
+
+For each slice, a blinded research assistant (RA) weighs out the water to 140 g, and then weighs the frozen slice on a plate on which the scale has been zeroed. Each slice only leaves the freezer when it is going to be microwaved, not together with the other slice of its block. I microwave it on a separate plate, with the glass of water if it is assigned to treatment and without it if it is assigned to control. Ten seconds after the microwave stops, I hand the slice to the RA, who is in an adjacent room with headphones and cannot see whether a glass was used. He weighs it again on the same plate and scale. The microwave door is left open for a minute between slices, and the second slice of the block is processed in the same way. The weighing plate is the same for every weighing, is never microwaved, and is dried with a cloth every time a slice is removed.
+
+A slice complies with its assignment if it is microwaved for 35 seconds at the default power, with the glass of 140 g of water if it is assigned to treatment and without any glass if it is assigned to control. I observe compliance directly, since I carry out every step myself and the subjects have no agency, so I do not expect non-compliance.
+
+## 3. Randomization
+
+I use block randomization: 14 blocks of two slices, no clusters and no multiple treatment arms, with exactly one treated and one control slice in each block (probability 0.5). Each block pairs the same-numbered slice of the two packs, because slices are asymmetrical within a pack, but I expect each slice to be very similar to the same-numbered slice of the other pack, as this bread is produced and cut industrially.
+
+Treatment is decided by one physical coin flip per block (tails: the pack A slice gets the glass; heads: the pack B slice does), and a second flip per block decides the order in which the two slices are microwaved (tails: the treated slice goes first). The flips are made after this plan is registered and before the first slice leaves the freezer. They are entered in the code below (the letters shown there are placeholders) and a copy of the file is saved. Flips are never repeated to achieve any kind of balance.
+
+To check whether the randomization was followed, the code verifies that every block has one treated and one control slice. It also tests whether the pre-weight predicts treatment, by comparing the F-statistic from regressing treatment on pre-weight with its distribution across all possible assignments (randomization inference).
+
+## 4. Outcomes
+
+My outcome of interest is moisture loss, measured as the percentage of weight lost, (pre-weight − post-weight) / pre-weight × 100. The scale is a percentage, and a positive number means the slice lost weight. The RA weighs every slice in grams, to 0.1 g, before microwaving and ten seconds after the microwave stops, the same in both conditions. The percentage is computed from these two weights, so slices of different sizes are comparable.
+
+To keep the measurement symmetrical between treatment and control, the same RA uses the same scale and weighing plate for every weighing and does not know the assignment. The wait before the second weighing is the same in both conditions, the order of the two slices within each block is randomized, and the microwave door is left open between slices.
+
+## 5. Covariates
+
+The only covariate is the pre-weight (in grams), measured by the RA on the scale before microwaving. It is measured before treatment, so treatment cannot affect it. It is used in one secondary model, because the primary analysis relies on block fixed effects, which already account for differences in slice size. Pack of origin and the order of microwaving are recorded only for the randomization checks.
+
+## 6. Analysis
+
+**Estimand and estimator.** The estimand is the average treatment effect (ATE) of the glass on percentage weight loss, at 35 seconds and default power. The estimator is the mean of the 14 within-block differences (treated minus control), which equals the treatment coefficient in a regression with block fixed effects. Two secondary models are also reported: the naive difference in means, and block fixed effects plus pre-weight. There is no covariate selection, and the pre-weight is the only covariate.
+
+**Hypotheses and test.** The null hypothesis is that the percentage of weight lost is not different for slices microwaved with a glass of room-temperature water and those microwaved without it, at the same power and time. The alternative hypothesis is that it is different. I expect the glass to reduce weight loss, so the ATE should be negative, but I use a two-tailed test at the 5% level, which is more conservative. The test is randomization inference of the sharp null of no effect for any slice, permuting the assignment within blocks only (10,000 assignments sampled from the 16,384 possible, with seed 1234567). I report the estimate, its standard error and the 95% confidence interval from the randomization distribution.
+
+**Assumptions.** Random assignment holds by the coin flips within blocks, with a known probability of 0.5, and since I make and record the flips myself, a violation is unlikely. Non-interference could fail if steam, heat or water from one run affects the next slice, for example through dryness. To prevent this, I vent the microwave between slices, use fresh water, microwave one slice at a time while the other stays frozen, and randomize which slice goes first. Excludability could fail through small biased decisions when reading the scale (for example, rounding between two decimals), so the RA is blind, and the scale, plate and handling are identical in both conditions. This blinding is imperfect, because a warmer slice could reveal its condition to the RA. Non-compliance and attrition are not expected, since I deliver the treatment and the RA weighs every slice. If any slice deviates from the protocol, I will keep it in the analysis and report the deviation.
+
+**Limitations.** The glass bundles two things, added humidity and the water absorbing microwave energy, so the experiment cannot separate them. Because neither humidity nor the temperature of the slice is measured, a slice with the glass may simply be less defrosted. The experiment uses only one microwave at its default settings. I also assume that weight loss reflects moisture loss and not other chemical processes in the bread.
+
+# R code
+
+The code below turns the coin flips into the assignment, cleans the data and runs the main analysis. The full script, with extra checks and figures, is `bread_analysis_code.R`, attached to the registration.
+
+```{r code}
+# 1. Packages
+library(tidyverse)
+library(ri)   # no longer on CRAN: install.packages("https://codeload.github.com/cran/ri/tar.gz/refs/heads/master", repos = NULL, type = "source")
+
+# 2. Randomization: coin flips -> assignment (T = tails, H = heads)
+n_blocks  <- 14
+flip1_raw <- c("H","T","T","H","T","H","H","T","T","H","T","H","H","T")  # PLACEHOLDER; T: pack A slice is treated
+flip2_raw <- c("T","H","T","T","H","H","T","H","T","T","H","T","H","H")  # PLACEHOLDER; T: treated slice goes first
+
+assignment <- tibble(block = 1:n_blocks, flip1 = flip1_raw, flip2 = flip2_raw) %>%
+  crossing(pack = c("A", "B")) %>%
+  mutate(
+    treat    = as.integer((flip1 == "T" & pack == "A") | (flip1 == "H" & pack == "B")),
+    order    = case_when(treat == 1 & flip2 == "T" ~ 1L,   # treated slice goes first
+                         treat == 0 & flip2 == "H" ~ 1L,   # control slice goes first
+                         TRUE ~ 2L),
+    slice_id = paste0(pack, sprintf("%02d", block))
+  ) %>%
+  arrange(block, pack)
+
+stopifnot(all(tapply(assignment$treat, assignment$block, sum) == 1))  # one treated slice per block
+
+# 3. Data and cleaning
+dat <- read_csv("bread_data.csv") %>%   # columns: slice_id, pre_weight, post_weight
+  left_join(assignment, by = "slice_id") %>%
+  mutate(loss_pct = (pre_weight - post_weight) / pre_weight * 100)
+
+# 4. Randomization check: does the pre-weight predict treatment?
+Z <- dat$treat; Y <- dat$loss_pct; blockvar <- dat$block
+set.seed(1234567)
+prob  <- genprobexact(Z, blockvar)
+perms <- genperms(Z, blockvar, maxiter = 10000)   # assignments within blocks
+
+Fstat  <- summary(lm(treat ~ pre_weight, data = dat))$fstatistic[1]
+Fstore <- apply(perms, 2, function(z) summary(lm(z ~ pre_weight, data = dat))$fstatistic[1])
+mean(Fstore >= Fstat)   # randomization inference p-value
+
+# 5. Main analysis
+ate <- estate(Y, Z, prob = prob)   # mean of the within-block differences
+
+Ys_null     <- genouts(Y, Z, ate = 0)   # sharp null: no effect on any slice
+dist_null   <- gendist(Ys_null, perms, prob = prob, HT = FALSE)
+p_two_sided <- mean(abs(dist_null) >= abs(ate) - 1e-12)
+
+Ys_est   <- genouts(Y, Z, ate)   # effect of every slice equal to the estimate
+dist_est <- gendist(Ys_est, perms, prob = prob, HT = FALSE)
+disp     <- dispdist(dist_est, ate, display.plot = FALSE)
+
+c(ATE = ate, SE = disp$sd, p_two_sided = p_two_sided)
+disp$quantile   # 95% confidence interval
+
+# 6. Secondary models
+m1 <- lm(loss_pct ~ treat, data = dat)                               # naive difference in means
+m2 <- lm(loss_pct ~ treat + factor(block), data = dat)               # block fixed effects
+m3 <- lm(loss_pct ~ treat + factor(block) + pre_weight, data = dat)  # + pre-weight
+```
